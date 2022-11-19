@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c6e7808a6724bbda2beee5ccc302256, type: 3}
+  m_Name: GameSettings
+  m_EditorClassIdentifier: 
+  _settingsAnimationManagerUI:
+    TravelSpeed: 1
+  _settingsScreenManager:
+    ScreenAddressablesID: []
+  _animationSettings:
+    _travelTime: 0.35
+    _yPositionCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 1.8029788
+        outSlope: 1.8029788
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.11498586
+      - serializedVersion: 3
+        time: 0.5
+        value: 0.5
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 34
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: -1.6412176
+        outSlope: -1.6412176
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.061393976
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  _settingsResourcePool:
+    PullSize: 3
+    Items:
+    - {fileID: 3632028600884809115, guid: 51246ddfb4dab394badc4f0bfed7920b, type: 3}
+    - {fileID: 2624284986361947332, guid: a41985c01d5458c48b6616bfaffa002b, type: 3}
+    - {fileID: 4100450345173525707, guid: 2bb801f17f585a74d85ff6d934e9819a, type: 3}
+  _settingsJunkItemPool:
+    PullSize: 10
+    Items:
+    - {fileID: 110207656615136969, guid: 36d85e541ae98c44a8cdd82c7391273a, type: 3}
+    - {fileID: 2849138502667174740, guid: 530aceafdc609df43afe8de1bd0d9626, type: 3}
+  _settingsResourceManager:
+    StartResource:
+    - ResourceType: 0
+      Amount: 10000
+  _settingsVisitorPool:
+    Visitors:
+    - {fileID: 1802633976779325912, guid: 738fa51978403694fb82d4f38d521dd9, type: 3}

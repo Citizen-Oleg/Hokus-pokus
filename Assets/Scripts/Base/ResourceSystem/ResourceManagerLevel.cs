@@ -5,15 +5,8 @@ namespace ResourceSystem
 {
     public class ResourceManagerLevel : ResourceManager
     {
-        public ResourceManagerLevel(Settings settings)
+        public ResourceManagerLevel(Settings settings) : base(settings)
         {
-            Resources = new List<Resource>(settings.StartResource);
-        }
-
-        [Serializable]
-        public class Settings
-        {
-            public List<Resource> StartResource = new List<Resource>();
         }
     }
 }

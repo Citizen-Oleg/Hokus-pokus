@@ -4,21 +4,24 @@ using UnityEngine;
 
 namespace Tools.SimpleEventBus
 {
-    public class MonoBehaviourPool<T> where T : Component
+    public abstract class MonoBehaviourPool<T> where T : Component
     {
         public ReadOnlyCollection<T> UsedItems { get; private set; }
 
-        private readonly List<T> _notUsedItems = new List<T>();
-        private readonly List<T> _usedItems = new List<T>();
+        protected readonly List<T> _notUsedItems = new List<T>();
+        protected readonly List<T> _usedItems = new List<T>();
 
-        private readonly T _prefab;
-        private readonly Transform _parent;
+        protected readonly T _prefab;
+        protected readonly Transform _parent;
 
         public MonoBehaviourPool(T prefab, Transform parent, int defaultCount = 4)
         {
             _parent = parent;
             _prefab = prefab;
+        }
 
+        protected void CreateItemInPool(int defaultCount)
+        {
             for (int i = 0; i < defaultCount; i++)
             {
                 AddNewItemInPool();
@@ -79,7 +82,7 @@ namespace Tools.SimpleEventBus
             }
         }
 
-        private void AddNewItemInPool()
+        protected virtual void AddNewItemInPool()
         {
             var newItem = Object.Instantiate(_prefab, _parent, false);
             newItem.gameObject.SetActive(false);

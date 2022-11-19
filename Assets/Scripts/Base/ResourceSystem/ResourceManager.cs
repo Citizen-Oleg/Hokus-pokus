@@ -10,6 +10,11 @@ namespace ResourceSystem
         public event Action<int> OnPayResource;
 
         public List<Resource> Resources { get; protected set; }
+        
+        public ResourceManager(Settings settings)
+        {
+            Resources = new List<Resource>(settings.StartResource);
+        }
 
         public virtual void AddResource(Resource resource)
         {
@@ -70,6 +75,12 @@ namespace ResourceSystem
         private int GetIndexResource(ResourceType resourceType)
         {
             return Resources.FindIndex(resource => resource.ResourceType == resourceType);
+        }
+
+        [Serializable]
+        public class Settings
+        {
+            public List<Resource> StartResource = new List<Resource>();
         }
     }
 }

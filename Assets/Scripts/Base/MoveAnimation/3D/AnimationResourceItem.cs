@@ -11,5 +11,6 @@ namespace Base.MoveAnimation._3D
         public Transform EndTransformPosition;
         public float Progress;
         public Action CallBack;
+        public Vector3 Offset;
     }
 }

@@ -17,7 +17,7 @@ namespace Base.MoveAnimation._3D
             _yPositionCurve = animationSettings.YPositionCurve;
         }
 
-        public void ShowFlyingResource(Transform item, Transform endTransformPosition, Action callBack)
+        public void ShowFlyingResource(Transform item, Transform endTransformPosition, Vector3 offSet, Action callBack)
         {
             _animationResourceItems.Add(new AnimationResourceItem
             {
@@ -26,7 +26,8 @@ namespace Base.MoveAnimation._3D
                 StartRotation = item.transform.rotation,
                 CallBack = callBack,
                 EndTransformPosition = endTransformPosition,
-                Progress = 0
+                Progress = 0,
+                Offset = offSet
             });
         }
         
@@ -41,7 +42,8 @@ namespace Base.MoveAnimation._3D
                 information.Progress += Time.deltaTime / _travelTime;
 
                 var endTransform = information.EndTransformPosition;
-                var positionItem = Vector3.Lerp(information.StartPosition, endTransform.position, information.Progress)
+                var endPosition = endTransform.TransformPoint(information.Offset);
+                var positionItem = Vector3.Lerp(information.StartPosition, endPosition, information.Progress)
                                    + positionYcurve;
                 information.Item.transform.position = positionItem;
                 
