@@ -1,4 +1,5 @@
 ﻿using System;
+using DG.Tweening;
 using UnityEngine;
 
 namespace ItemSystem
@@ -6,27 +7,37 @@ namespace ItemSystem
     [RequireComponent(typeof(Collider))]
     public class JunkItem : Item
     {
-        public event Action<JunkItem> OnPickUp;
-
-        public bool IsCollect => _isCollect;
-
-        private bool _isCollect;
+        [SerializeField]
+        private GameObject _puddle;
+        [SerializeField]
+        private GameObject _model;
+        [SerializeField]
+        private float _scaleTime = 0.5f;
+        
+        private Quaternion _startRotation;
+        private Sequence _sequence;
 
         private void Awake()
         {
+            _startRotation = _model.transform.rotation;
             GetComponent<Collider>().isTrigger = true;
         }
 
-        public void PickUp()
+        private void OnEnable()
         {
-            OnPickUp?.Invoke(this);
-            _isCollect = true;
+            _puddle.gameObject.SetActive(true);
+            _model.transform.rotation = _startRotation;
         }
 
         public override void Release()
         {
-            _isCollect = false;
-            base.Release();
+            _sequence = DOTween.Sequence();
+            _sequence.Append(transform.DOScale(Vector3.zero, _scaleTime));
+            _sequence.AppendCallback(() =>
+            {
+                base.Release();
+                transform.localScale = Vector3.one;
+            });
         }
     }
 }

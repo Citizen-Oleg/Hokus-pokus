@@ -1,13 +1,13 @@
-﻿using UnityEngine;
+﻿using BuildingSystem.CashSystem;
 
 namespace StaffSystem
 {
     public class TicketStaff : Staff
     {
-        public override void Activate()
+        public override void Initialize(ServiceZone serviceZone)
         {
-            base.Activate();
-            _aiMovementController.MoveToPoint(_stayPosition);
+            _stayPosition = serviceZone.StayPosition;
+            _aiMovementController.TeleportToPoint(_stayPosition);
         }
     }
 }

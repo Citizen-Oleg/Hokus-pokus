@@ -10,12 +10,15 @@ namespace BuildingSystem
     [RequireComponent(typeof(Collider))]
     public class GarbageCan : MonoBehaviour
     {
-        [SerializeField]
-        private float _ejectionTime;    
-        [SerializeField]
-        private float _radiusCollection;
+        public Transform StayPosition => _stayPosition;
         
-        private readonly Collider[] _colliders = new Collider[50];
+        [SerializeField]
+        private Transform _stayPosition;
+        [SerializeField]
+        private float _ejectionTime;
+        [SerializeField]
+        private Transform _centerPoint;
+        
         private float _startTime;
         
         [Inject]
@@ -28,39 +31,17 @@ namespace BuildingSystem
 
         private void OnTriggerStay(Collider other)
         {
-            if (IsTimeCollect())
+            if (IsTimeCollect() && other.TryGetComponent(out Player player) && player.Inventory.HasItems)
             {
-                Collection();
+                var item = player.Inventory.GetLastItem();
+                item.Transform.parent = transform;
+                _animationManager.ShowFlyingResource(item.Transform, _centerPoint, Vector3.zero, () =>
+                {
+                    item.Release();
+                });
             }
         }
 
-        private void Collection()
-        {
-            var count = Physics.OverlapSphereNonAlloc(transform.position, _radiusCollection, _colliders);
-
-            if (count == 0)
-            {
-                return;
-            }
-            
-            for (var i = 0; i < count; i++)
-            {
-                if (_colliders[i] == null)
-                {
-                    break;
-                }
-                if (_colliders[i].TryGetComponent(out IStaffInventory player) && player.Inventory.HasItems)
-                {
-                    var item = player.Inventory.GetLastItem();
-                    item.Transform.parent = transform;
-                    _animationManager.ShowFlyingResource(item.Transform, transform, Vector3.zero, () =>
-                    {
-                        item.Release();
-                    });
-                }
-            }
-        }
-        
         private bool IsTimeCollect()
         {
             if (Time.time > _startTime + _ejectionTime)
@@ -70,11 +51,6 @@ namespace BuildingSystem
             }
 
             return false;
-        }
-
-        private void OnDrawGizmos()
-        {
-            Gizmos.DrawWireSphere(transform.position, _radiusCollection);
         }
     }
 }

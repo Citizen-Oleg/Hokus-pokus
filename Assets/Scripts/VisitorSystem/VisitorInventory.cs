@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Base.MoveAnimation._3D;
+using BuildingSystem.CashSystem;
 using ItemSystem;
 using PlayerComponent;
 using ResourceSystem;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace VisitorSystem
 {
@@ -65,23 +67,31 @@ namespace VisitorSystem
             });
         }
 
-        public List<JunkItem> DropItem()
+        public List<JunkItem> DropItem(PerformanceService.SeatPosition seatPosition)
         {
             var list = new List<JunkItem>();
-            foreach (var inventoryItem in _inventoryItems)
+
+            for (int i = 0; i < _inventoryItems.Count; i++)
             {
-                inventoryItem.Release();
-                var item = _junkItemFactory.Create(inventoryItem.ItemType);
-                item.transform.position = inventoryItem.Transform.position;
+                _inventoryItems[i].Release();
+                var item = _junkItemFactory.Create(_inventoryItems[i].ItemType);
+                item.transform.position = i == 1 ?
+                    seatPosition.PointJunkItemOne.position :
+                    seatPosition.PointJunkItemTwo.position;
+
+                var rotation = item.transform.rotation;
+                rotation.y = Random.rotation.y;
+                item.transform.rotation = rotation;
+                
                 list.Add(item);
             }
-            
+
             _inventoryItems.Clear();
 
             return list;
         }
 
-        
+
         [Serializable]
         public class Settings
         {

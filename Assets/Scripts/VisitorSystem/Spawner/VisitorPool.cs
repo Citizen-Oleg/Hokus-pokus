@@ -14,11 +14,11 @@ namespace VisitorSystem.Spawner
         private readonly Dictionary<TypeVisitor, ZenjectMonoBehaviourPool<Visitor>> _monoBehaviourPools = 
             new Dictionary<TypeVisitor, ZenjectMonoBehaviourPool<Visitor>>();
         
-        public VisitorPool(Settings settings, DiContainer diContainer,Transform transform)
+        public VisitorPool(Settings settings, DiContainer diContainer, Transform transform)
         {
             foreach (var settingsVisitor in settings.Visitors)
             {
-                var pool = new ZenjectMonoBehaviourPool<Visitor>(settingsVisitor, transform, diContainer, 5);
+                var pool = new ZenjectMonoBehaviourPool<Visitor>(settingsVisitor, transform, diContainer, settings.PoolSize);
                 _monoBehaviourPools.Add(settingsVisitor.TypeVisitor, pool);
             }
         }
@@ -42,7 +42,8 @@ namespace VisitorSystem.Spawner
         
         [Serializable]
         public class Settings
-        { 
+        {
+            public int PoolSize = 5;
             public List<Visitor> Visitors = new List<Visitor>();
         }
     }

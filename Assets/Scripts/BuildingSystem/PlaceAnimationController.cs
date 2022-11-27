@@ -14,8 +14,7 @@ namespace BuildingSystem
         private readonly TextMeshProUGUI _textCash;
         private readonly Image _image;
         private readonly int _startAmount;
-
-        private readonly Vector3 _endScale;
+        
         private readonly float _timeScale;
         
         private bool _isPlayAnimation;
@@ -25,30 +24,39 @@ namespace BuildingSystem
             _textCash = settings.TextCash;
             _image = settings.Image;
             _startAmount = startAmount;
-
-            _endScale = settings.EndScale;
+            
             _timeScale = settings.TimeScale;
 
             _textCash.text = _startAmount.ToString();
         }
 
-        public void ZoomAnimation(GameObject gameObject)
+        public void Open(GameObject openObject, GameObject closeObject = null)
         {
-            ZoomObject(gameObject);
+            Resize(openObject, closeObject);
         }
-
-        private async UniTask ZoomObject(GameObject gameObject)
+        
+        private async UniTask Resize(GameObject openObject, GameObject closeObject = null)
         {
             var currentTime = 0f;
-            var startScale = Vector3.zero;
 
             while (_timeScale > currentTime)
             {
                 currentTime += Time.deltaTime;
 
-                gameObject.transform.localScale = Vector3.Lerp(startScale, _endScale, currentTime / _timeScale);
+                openObject.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, currentTime / _timeScale);
+                
+                if (closeObject != null)
+                {
+                    closeObject.transform.localScale =
+                        Vector3.Lerp(Vector3.one, Vector3.zero, currentTime / _timeScale);
+                }
 
                 await UniTask.Yield(PlayerLoopTiming.Update);
+            }
+
+            if (closeObject != null)
+            {
+                closeObject.gameObject.SetActive(false);
             }
         }
 
@@ -94,7 +102,6 @@ namespace BuildingSystem
             public Image Image;
 
             public float TimeScale = 0.5f;
-            public Vector3 EndScale = Vector3.one;
         }
     }
 }

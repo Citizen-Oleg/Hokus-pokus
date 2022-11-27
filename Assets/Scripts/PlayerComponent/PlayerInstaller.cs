@@ -16,16 +16,13 @@ namespace PlayerComponent
         private Player _player;
         [SerializeField]
         private PlayerAnimationController.Settings _settingsPlayerAnimationController;
-        [SerializeField]
-        private CollectItemHandler _collectItemHandler;
-        
+
         public override void InstallBindings()
         {
             Container.BindInstance(_playerSettings);
             Container.BindInstance(_inventorySettings);
             Container.BindInstance(_settingsPlayerAnimationController);
-            Container.BindInstance(_collectItemHandler);
-            
+
             Container.BindInstance(_inventarizator).AsSingle();
             Container.BindInstance(_player).AsSingle();
             

@@ -16,6 +16,8 @@ namespace BuildingSystem
         private Resource _priceCreateBuilding;
         [SerializeField]
         private GameObject _openObject;
+        [SerializeField]
+        private GameObject _closeObject;
      
         [SerializeField]
         private PlaceAnimationController.Settings _settingsPlaceAnimationController;
@@ -29,6 +31,12 @@ namespace BuildingSystem
         {
             GetComponent<Collider>().isTrigger = true;
             _placeAnimationController = new PlaceAnimationController(_settingsPlaceAnimationController, _priceCreateBuilding.Amount);
+            _openObject.SetActive(false);
+
+            if (_closeObject != null)
+            {
+                _closeObject.SetActive(true);
+            }
         }
 
         private void OnTriggerEnter(Collider other)
@@ -40,7 +48,7 @@ namespace BuildingSystem
                     _resourceManagerGame.Pay(_priceCreateBuilding);
                     gameObject.SetActive(false);
                     _openObject.SetActive(true);
-                    _placeAnimationController.ZoomAnimation(_openObject);
+                    _placeAnimationController.Open(_openObject, _closeObject);
                 });
             }
         }

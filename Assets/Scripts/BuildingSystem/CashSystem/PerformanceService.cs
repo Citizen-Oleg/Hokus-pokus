@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Events;
 using ItemSystem;
 using Tools.SimpleEventBus;
@@ -11,30 +12,46 @@ namespace BuildingSystem.CashSystem
 {
     public class PerformanceService : ServiceZone
     {
-        public List<JunkItem> Trash => _trash;
+        public event Action<PerformanceService> OnStartJunkCollect;
+
+        public List<Row> CurrentRow => _row;
+        public GarbageCan GarbageCan => _garbageCan;
         
         [SerializeField]
         private float _presentationTime;
         [SerializeField]
         private float _startAnimation;
         [SerializeField]
+        private GarbageCan _garbageCan;
+        [SerializeField]
         private MagicAnimationController _magicAnimationController;
         [SerializeField]
-        private List<Transform> _seatPositions = new List<Transform>();
+        private List<Row> _row = new List<Row>();
 
         private float _startPresentationTime;
         
         private readonly List<Visitor> _watching = new List<Visitor>();
-        private readonly List<JunkItem> _trash = new List<JunkItem>();
-         
+
         protected override void ActivateService()
         {
             var visitors = _cashQueue.GetAllVisitor();
+            var countVisitor = visitors.Count;
+            var indexVisitor = 0;
 
-            for (var i = 0; i < visitors.Count; i++)
+            foreach (var row in _row)
             {
-                _watching.Add(visitors[i]);
-                visitors[i].SetDestination(_seatPositions[i], PointType.Circus);
+                if (countVisitor == 0)
+                {
+                    break;
+                }
+
+                foreach (var seatPosition in row.SeatPositions.TakeWhile(seatPosition => countVisitor != 0))
+                {
+                    _watching.Add(visitors[indexVisitor]);
+                    visitors[indexVisitor].SetDestination(seatPosition.Point, PointType.Circus);
+                    countVisitor--;
+                    indexVisitor++;
+                }
             }
 
             Observable.Timer(TimeSpan.FromSeconds(_startAnimation))
@@ -43,12 +60,14 @@ namespace BuildingSystem.CashSystem
 
         protected override void Update()
         {
+            UpdateTimerOnEnableOrDisable();
+            
             if (IsTimePresentation() && _watching.Count != 0)
             {
                 FinishShow();
             }
 
-            if (_trash.Count == 0 && IsActivateService() && IsTimePresentation())
+            if (_row.TrueForAll(row => row.IsCleared) && IsTimePresentation() && IsActivateService())
             {
                 RefreshPresentationTimer();
                 ActivateService();
@@ -57,26 +76,34 @@ namespace BuildingSystem.CashSystem
 
         private void FinishShow()
         {
-            foreach (var visitor in _watching)
+            var countWatching = _watching.Count;
+            var indexWatching = 0;
+
+            foreach (var row in _row)
             {
-                var listTrash = visitor.Inventory.DropItem();
-                foreach (var junkItem in listTrash)
+                if (countWatching == 0)
                 {
-                    junkItem.OnPickUp += RemoveJunkItem;
-                    _trash.Add(junkItem);
+                    break;
                 }
 
-                EventStreams.UserInterface.Publish(new EventServedVisitor(_serviceType, visitor, this));
+                foreach (var seatPosition in row.SeatPositions.TakeWhile(seatPosition => countWatching != 0))
+                {
+                    var listTrash = _watching[indexWatching].Inventory.DropItem(seatPosition);
+                    foreach (var junkItem in listTrash)
+                    {
+                        row.AddJunkItem(junkItem);
+                    }
+                    
+                    EventStreams.UserInterface.Publish(new EventServedVisitor(_serviceType, _watching[indexWatching], this));
+                    
+                    countWatching--;
+                    indexWatching++;
+                }
             }
 
+            OnStartJunkCollect?.Invoke(this);
             _watching.Clear();
             _magicAnimationController.Reset();
-        }
-
-        private void RemoveJunkItem(JunkItem junkItem)
-        {
-            junkItem.OnPickUp -= RemoveJunkItem;
-            _trash.Remove(junkItem);
         }
 
         private bool IsTimePresentation()
@@ -89,12 +116,12 @@ namespace BuildingSystem.CashSystem
             _startPresentationTime = Time.time + _presentationTime;
         }
 
-        private void OnDestroy()
+        [Serializable]
+        public class SeatPosition
         {
-            foreach (var item in _trash)
-            {
-                item.OnPickUp -= RemoveJunkItem;
-            }
+            public Transform Point;
+            public Transform PointJunkItemOne;
+            public Transform PointJunkItemTwo;
         }
     }
 }

@@ -10,19 +10,20 @@ namespace VisitorSystem
     {
         public VisitorInventory Inventory { get; private set; }
         public VisitCounter VisitCounter => _visitCounter;
+        public AIMovementController VisitorMovementController => _visitorMovementController;
         
         public TypeVisitor TypeVisitor => _typeVisitor;
-        public Transform UiAttachPoint => _uiAttachPoint;
-        
+
         [SerializeField]
         private TypeVisitor _typeVisitor;
-        [SerializeField]
-        private Transform _uiAttachPoint;
-
+        
         private VisitCounter _visitCounter;
         private AIMovementController _visitorMovementController;
         private VisitorPool _visitorPool;
         private VisitorAnimationController _visitorAnimationController;
+
+        private Transform _nextPoint;
+        private PointType _nextPointType;
         
         [Inject]
         public void Constructor(VisitorInventory inventory, AIMovementController visitorMovementController, VisitCounter visitCounter, 
@@ -37,6 +38,17 @@ namespace VisitorSystem
         public void Initialize(VisitorPool visitorPool)
         {
             _visitorPool = visitorPool;
+        }
+
+        public void SetNextPoint(Transform point, PointType pointType)
+        {
+            _nextPoint = point;
+            _nextPointType = pointType;
+        }
+
+        public void MoveToNextPoint()
+        {
+            _visitorMovementController.MoveToPoint(_nextPoint, _nextPointType);
         }
 
         public void SetDestination(Transform point, PointType pointType)

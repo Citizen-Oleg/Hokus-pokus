@@ -14,7 +14,7 @@ namespace Base.Tools
             return localPoint;
         }
 
-        public static Vector2 WorldToCanvasPosition(Camera camera, RectTransform parent, Vector3 attachPoint)
+        public static Vector2 WorldToCanvasPosition(Camera camera, Vector3 attachPoint)
         {
             var worldPoint = attachPoint;
             var screenPoint = RectTransformUtility.WorldToScreenPoint(camera, worldPoint);

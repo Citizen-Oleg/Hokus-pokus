@@ -1,4 +1,5 @@
-﻿using Events;
+﻿using System.Collections.Generic;
+using Events;
 using ItemSystem;
 using StaffSystem;
 using Tools.SimpleEventBus;
@@ -9,9 +10,12 @@ namespace BuildingSystem.CashSystem
     public class ProvisionZone : CheckoutArea
     {
         public ItemType SoldItem => _soldItem;
+        public List<GroceryCheckoutStaff.MinerPoint> MinerPoints => _minerPoints;
         
         [SerializeField]
         private ItemType _soldItem;
+        [SerializeField]
+        private List<GroceryCheckoutStaff.MinerPoint> _minerPoints = new List<GroceryCheckoutStaff.MinerPoint>();
 
         protected override void ActivateService()
         {
@@ -21,10 +25,16 @@ namespace BuildingSystem.CashSystem
                 item.Transform.parent = transform;
 
                 var visitor = _cashQueue.GetFirstVisitor();
+                EventStreams.UserInterface.Publish(new EventServedVisitorNextPoint(_serviceType, visitor, this));
+                
                 visitor.Inventory.ReplenishInventory(item, () =>
                 {
+                    if (visitor.VisitorMovementController.IsPointReached())
+                    {
+                        visitor.MoveToNextPoint();
+                    }
+
                     _cashQueue.RefreshQueue();
-                    EventStreams.UserInterface.Publish(new EventServedVisitor(_serviceType, visitor, this));
                     var cash = _itemFactory.Create(ItemType.Cash) as ResourceItem;
                     cash.Resource = _price;
                     cash.transform.position = _spawnPositionMoney.position;
@@ -35,28 +45,17 @@ namespace BuildingSystem.CashSystem
 
         protected override void Update()
         {
-            if (_sellersPlace.OnSite && 
-                _sellersPlace.Staff is IStaffInventory staffInventory && 
-                staffInventory.Inventory.HasItem(_soldItem) && 
-                _cashQueue.HasFirstVisitorAtTheCheckout() && 
-                _serviceOrganigram.IsTheFollowingServiceAvailable(_serviceType))
+            UpdateTimerOnEnableOrDisable();
+            if (ConditionsMet())
             {
-                if (_isActivateTimer && IsItemProcessingTime())
-                { 
-                    ActivateService();
-                    _isActivateTimer = false;
-                }
+                ActivateService();
+            }
+        }
 
-                if (!_isActivateTimer)
-                {
-                    RefreshTimer();
-                    _isActivateTimer = true;
-                }
-            }
-            else
-            {
-                _isActivateTimer = false;
-            }
+        private bool ConditionsMet()
+        {
+            return _sellersPlace.Staff is IStaffInventory staffInventory &&
+                   staffInventory.Inventory.HasItem(_soldItem) && IsActivateService();
         }
     }
 }

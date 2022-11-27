@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Base.SimpleEventBus_and_MonoPool;
 using BuildingSystem;
+using DesiredServiceSystem;
 using UnityEngine;
 using Zenject;
 
@@ -13,9 +14,11 @@ namespace TimerViewSystem
         private readonly List<TimerView> _activeTimer = new List<TimerView>();
 
         private readonly Camera _camera;
+        private readonly IconDesiredProvider _iconDesiredProvider;
 
-        public TimerViewManager(Settings settings)
+        public TimerViewManager(Settings settings, IconDesiredProvider iconDesiredProvider)
         {
+            _iconDesiredProvider = iconDesiredProvider;
             _pool = new DefaultMonoBehaviourPool<TimerView>(settings.TimerView, settings.Canvas, settings.PoolSize);
             _camera = Camera.main;
 
@@ -28,7 +31,7 @@ namespace TimerViewSystem
         private void CreateView(BuildingMiner buildingMiner)
         {
             var view = _pool.Take();
-            view.Initialize(_camera, buildingMiner);
+            view.Initialize(_camera, buildingMiner, _iconDesiredProvider.GetSpriteByItemType(buildingMiner.CraftItemType));
             _activeTimer.Add(view);
         }
         

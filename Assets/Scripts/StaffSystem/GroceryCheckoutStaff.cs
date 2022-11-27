@@ -11,9 +11,8 @@ namespace StaffSystem
     public class GroceryCheckoutStaff : Staff, IStaffInventory
     {
         public Inventory Inventory { get; private set; }
-        
-        [SerializeField]
-        private List<MinerPoint> _minerPoints = new List<MinerPoint>();
+
+        private List<MinerPoint> _minerPoints;
         
         [Inject]
         public void Constructor(Inventory inventory)
@@ -21,13 +20,23 @@ namespace StaffSystem
             Inventory = inventory;
         }
 
+        public override void Initialize(ServiceZone serviceZone)
+        {
+            _stayPosition = serviceZone.StayPosition;
+            _aiMovementController.TeleportToPoint(_stayPosition);
+            if (serviceZone is ProvisionZone provisionZone)
+            {
+                _minerPoints = provisionZone.MinerPoints;
+            }
+        }
+
         private void Update()
         {
-            if (!_isActivate)
+            if (_minerPoints == null)
             {
                 return;
             }
-
+            
             _aiMovementController.MoveToPoint(!Inventory.HasItems ? GetAvailableMiner().Point : _stayPosition);
         }
 

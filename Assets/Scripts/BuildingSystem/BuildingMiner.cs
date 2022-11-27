@@ -15,6 +15,7 @@ namespace BuildingSystem
         
         public bool HasSubject => _pointOfIssue.ThereItemsToGiveOut;
         public Transform UiAttachPosition => _uiAttachPosition;
+        public ItemType CraftItemType => _craftItemType;
 
         [SerializeField]
         private float _timeSpawn;

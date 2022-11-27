@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BuildingSystem.CashSystem;
 using PlayerComponent;
 using UnityEngine;
@@ -11,32 +12,42 @@ namespace StaffSystem
     {  
         public Inventory Inventory { get; private set; }
         
-        [SerializeField]
         private PerformanceService _performanceService;
-
-        private readonly NearestItemProvider _nearestItemProvider = new NearestItemProvider();
 
         [Inject]
         public void Constructor(Inventory inventory)
         {
             Inventory = inventory;
         }
+
+        public override void Initialize(ServiceZone serviceZone)
+        {
+            if (serviceZone is PerformanceService performanceService)
+            {
+                _stayPosition = performanceService.GarbageCan.StayPosition;
+                _aiMovementController.TeleportToPoint(_stayPosition);
+                _performanceService = performanceService;
+            }
+        }
         
         private void Update()
         {
-            if (!_isActivate)
+            if (_performanceService == null)
             {
                 return;
             }
-
-            if (Inventory.HasItems || _performanceService.Trash.Count == 0)
+            
+            if (_performanceService.CurrentRow.TrueForAll(row => row.IsCleared))
             {
                 _aiMovementController.MoveToPoint(_stayPosition);
             }
             else
             {
-                var item = _nearestItemProvider.GetNearestJunkItem(_performanceService.Trash, transform.position);
-                _aiMovementController.MoveToPoint(item.transform);
+                foreach (var row in _performanceService.CurrentRow.Where(row => !row.IsCleared))
+                {
+                    _aiMovementController.MoveToPoint(row.StayPoint);
+                    return;
+                }
             }
         }
     }

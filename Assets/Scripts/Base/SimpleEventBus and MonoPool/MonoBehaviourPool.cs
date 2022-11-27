@@ -46,12 +46,16 @@ namespace Tools.SimpleEventBus
             return itemFromPool;
         }
 
-        public void ReleaseAll()
+        public void ReleaseAll(bool setDefaultParent = true)
         {
             for (int i = 0; i < _usedItems.Count; i++)
             {
                 _usedItems[i].gameObject.SetActive(false);
-                _usedItems[i].transform.parent = _parent;
+
+                if (setDefaultParent)
+                {
+                    _usedItems[i].transform.parent = _parent;
+                }
             }
 
             _notUsedItems.AddRange(_usedItems);

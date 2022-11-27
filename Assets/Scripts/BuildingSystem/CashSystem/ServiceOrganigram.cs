@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Events;
 using ItemSystem;
+using Tools.SimpleEventBus;
+using UnityEngine;
 using VisitorSystem;
 using Random = UnityEngine.Random;
 
 namespace BuildingSystem.CashSystem
 {
-    public class ServiceOrganigram
+    public class ServiceOrganigram : IDisposable
     {
         private readonly Dictionary<ServiceType, List<ServiceZone>> _dictionary =
             new Dictionary<ServiceType, List<ServiceZone>>();
@@ -16,10 +19,14 @@ namespace BuildingSystem.CashSystem
             new Dictionary<ItemType, List<ProvisionZone>>();
 
         private readonly List<OrganigramSettings> _organigramSettingses;
-        
+
+        private readonly List<ServiceZone> _availableServise = new List<ServiceZone>();
+        private readonly IDisposable _subscription;
+
         public ServiceOrganigram(Settings settings)
         {
             _organigramSettingses = settings.ServiceSequence;
+            _subscription = EventStreams.UserInterface.Subscribe<EventNewServiceZone>(AddService);
             foreach (var organigramSettingse in settings.ServiceSequence)
             {
                 if (organigramSettingse.ServiceType == ServiceType.Product)
@@ -29,6 +36,33 @@ namespace BuildingSystem.CashSystem
                 else
                 {
                     _dictionary.Add(organigramSettingse.ServiceType, organigramSettingse.ServiceZones);
+                }
+            }
+        }
+
+        private void AddService(EventNewServiceZone eventNewServiceZone)
+        {
+            var serviceZone = eventNewServiceZone.ServiceZone;
+            if (serviceZone.ServiceType == ServiceType.Product && serviceZone is ProvisionZone provisionZone)
+            {
+                if (_provisions.ContainsKey(provisionZone.SoldItem))
+                {
+                    _provisions[provisionZone.SoldItem].Add(provisionZone);
+                }
+                else
+                {
+                    _provisions.Add(provisionZone.SoldItem, new List<ProvisionZone> { provisionZone });
+                }
+            }
+            else
+            {
+                if (_dictionary.ContainsKey(serviceZone.ServiceType))
+                {
+                    _dictionary[serviceZone.ServiceType].Add(serviceZone);
+                }
+                else
+                {
+                    _dictionary.Add(serviceZone.ServiceType, new List<ServiceZone> { serviceZone });
                 }
             }
         }
@@ -66,9 +100,10 @@ namespace BuildingSystem.CashSystem
             {
                 return IsProvisionServiceAvailable();
             }
-            
-            return _dictionary.ContainsKey(followingType) && 
-                   _dictionary[followingType].Any(service => service.IsAvailable);
+
+            return _dictionary[followingType].Count == 0 ?
+                IsTheFollowingServiceAvailable(serviceType) : 
+                _dictionary[followingType].Any(service => service.IsAvailable);
         }
         
         public bool IsTheServiceAvailable(ServiceType serviceType, ServiceZone ignoreZone = null)
@@ -86,6 +121,12 @@ namespace BuildingSystem.CashSystem
         public ServiceZone GetRandomFollowingServiceZone(ServiceType serviceType)
         {
             var serviceFollowing = GetFollowingServiceZones(serviceType);
+
+            if (serviceFollowing != ServiceType.Product && _dictionary[serviceFollowing].Count == 0)
+            {
+                return GetRandomFollowingServiceZone(serviceType);
+            }
+            
             var service = GetRandomServiceZone(serviceFollowing);
 
             if (!service.IsAvailable)
@@ -98,52 +139,28 @@ namespace BuildingSystem.CashSystem
         
         public ServiceZone GetAvailableRandomServiceZone(ServiceType serviceType, ServiceZone ignoreZone = null)
         {
-            var service = GetRandomServiceZone(serviceType);
-            
-            if (ignoreZone != null)
-            {
-                if (service.Equals(ignoreZone) || !service.IsAvailable)
-                {
-                    return GetAvailableRandomServiceZone(serviceType, ignoreZone);
-                }
-            }
-            else
-            {
-                if (!service.IsAvailable)
-                {
-                    return GetAvailableRandomServiceZone(serviceType, ignoreZone);
-                }
-            }
-
+            var service = GetRandomServiceZone(serviceType, ignoreZone);
             return service;
         }
 
         private bool IsProvisionServiceAvailable(ServiceZone ignoreService = null)
         {
-            bool isAvailable;
-            bool isEquals;
+            ItemType ignoreItem = ItemType.Burger;
+            if (ignoreService is ProvisionZone provisionZoneIgnore)
+            {
+                ignoreItem = provisionZoneIgnore.SoldItem;
+            }
+            
             foreach (var keyValuePair in _provisions)
             {
-                isAvailable = false;
-                isEquals = false;
-                foreach (var provisionZone in keyValuePair.Value)
+                if (ignoreService != null && keyValuePair.Key == ignoreItem)
                 {
-                    if (provisionZone.IsAvailable)
-                    {
-                        if (ignoreService != null && ignoreService.Equals(provisionZone))
-                        {
-                            isEquals = true;
-                            continue;
-                        }
-                        
-                        isAvailable = true;
-                    }
-                    break;
+                    continue;
                 }
 
-                if (!isAvailable && !isEquals)
+                if (keyValuePair.Value.TrueForAll(zone => !zone.IsAvailable))
                 {
-                    return isAvailable;
+                    return false;
                 }
             }
 
@@ -155,33 +172,56 @@ namespace BuildingSystem.CashSystem
             return (ServiceType) ((int) serviceType + 1);
         }
 
-        private ServiceZone GetRandomServiceZone(ServiceType serviceType)
+        private ServiceZone GetRandomServiceZone(ServiceType serviceType, ServiceZone ignoreService = null)
         {
+            FillAvailableServices(serviceType, ignoreService);
+            var randomIndex = GetRandomIndex(_availableServise.Count);
+
+            var services = _availableServise[randomIndex];
+            return services;
+        }
+
+        private void FillAvailableServices(ServiceType serviceType, ServiceZone ignoreService = null)
+        {
+            _availableServise.Clear();
+
             if (serviceType == ServiceType.Product)
             {
-                var provisions = _provisions[GetRandomType(_provisions.Count)];
-                return provisions[GetRandomIndex(provisions.Count)];
+                FillProductService(ignoreService);
+                return;
             }
+            
+            foreach (var serviceZone in _dictionary[serviceType])
+            {
+                if (serviceZone.IsAvailable)
+                {
+                    _availableServise.Add(serviceZone);
+                }
+            }
+        }
 
-            var services = _dictionary[serviceType];
-            return services[GetRandomIndex(services.Count)];
+        private void FillProductService(ServiceZone ignoreService = null)
+        {
+            foreach (var keyValuePair in _provisions)
+            {
+                foreach (var provisionZone in keyValuePair.Value)
+                {
+                    if (ignoreService != null && provisionZone.Equals(ignoreService))
+                    {
+                        continue;
+                    }
+                    
+                    if (provisionZone.IsAvailable)
+                    {
+                        _availableServise.Add(provisionZone);
+                    }
+                }
+            }
         }
 
         private int GetRandomIndex(int maxNumber)
         {
             return Random.Range(0, maxNumber);
-        }
-
-        private ItemType GetRandomType(int maxNumber)
-        {
-            var index = GetRandomIndex(maxNumber);
-
-            return index switch
-            {
-                0 => ItemType.Burger,
-                1 => ItemType.Soda,
-                _ => ItemType.Burger
-            };
         }
 
         [Serializable]
@@ -196,6 +236,11 @@ namespace BuildingSystem.CashSystem
             public int NumberVisits;
             public ServiceType ServiceType;
             public List<ServiceZone> ServiceZones = new List<ServiceZone>();
+        }
+
+        public void Dispose()
+        {
+            _subscription?.Dispose();
         }
     }
 }

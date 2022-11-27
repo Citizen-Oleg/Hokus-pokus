@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GameSettings
   m_EditorClassIdentifier: 
   _settingsAnimationManagerUI:
-    TravelSpeed: 1
+    TravelTime: 0.5
   _settingsScreenManager:
     ScreenAddressablesID: []
   _animationSettings:
@@ -67,5 +67,75 @@ MonoBehaviour:
     - ResourceType: 0
       Amount: 10000
   _settingsVisitorPool:
+    PoolSize: 5
     Visitors:
-    - {fileID: 1802633976779325912, guid: 738fa51978403694fb82d4f38d521dd9, type: 3}
+    - {fileID: 7685943768963853497, guid: 2dc5c1c5b482a5b43a14ee46492ae76a, type: 3}
+    - {fileID: 7685943768963853497, guid: 03e376e59bffc31469eed935b20b749d, type: 3}
+    - {fileID: 7685943768963853497, guid: 47445f99cf8cd784b81a3ed7c19b3a39, type: 3}
+    - {fileID: 7685943768963853497, guid: 3fc8cd1df5ed0d5429598ee6edc2e73e, type: 3}
+  _settingsServiceCreateViewTimer:
+    IconServices:
+    - Sprite: {fileID: 21300000, guid: 5f44f64953cb69142807a08a4d574ff3, type: 3}
+      ServiceType: 0
+    - Sprite: {fileID: 21300000, guid: 40890e6207bab1b4290b26c63cf82411, type: 3}
+      ServiceType: 2
+  _settingsDesiredProvider:
+    IconDesireds:
+    - SpriteTypeDesired: 0
+      Sprite: {fileID: 21300000, guid: 5f44f64953cb69142807a08a4d574ff3, type: 3}
+    - SpriteTypeDesired: 1
+      Sprite: {fileID: 21300000, guid: e90d617a86dd9a14584eef068d26a95e, type: 3}
+    - SpriteTypeDesired: 2
+      Sprite: {fileID: 21300000, guid: 2d81bcdfd11909a4f982e31041aba946, type: 3}
+  _settingsColorPayButtonProvider:
+    ColorPayButtons:
+    - Color: {r: 0.14901961, g: 0.9529412, b: 0.34509805, a: 1}
+      StatePayButton: 0
+    - Color: {r: 0.7019608, g: 0.7019608, b: 0.7019608, a: 1}
+      StatePayButton: 1
+  _settingsProfessionIconProvider:
+    ProfessionIcons:
+    - StaffType: 0
+      Sprite: {fileID: 21300000, guid: 534dfdffa9ca43d4bb7d2322979bef91, type: 3}
+    - StaffType: 2
+      Sprite: {fileID: 21300000, guid: bd6faf861feb5dc4d8634aa571da6c0c, type: 3}
+    ProductServiceIcons:
+    - Sprite: {fileID: 21300000, guid: 6f99fb34be6d6d6498ad7095a66d409a, type: 3}
+      ItemType: 1
+    - Sprite: {fileID: 21300000, guid: 2d5786554c29a8448a0914fb95c2c81d, type: 3}
+      ItemType: 2
+  _settingsServiceIconProvider:
+    ServiceIcons:
+    - ServiceType: 0
+      Sprite: {fileID: 21300000, guid: e02d22d3d50a5e044bb3bd244a65b1db, type: 3}
+    - ServiceType: 2
+      Sprite: {fileID: 21300000, guid: 8aad5a40b83683540a7573cca887c5d9, type: 3}
+    ProductServiceIcons:
+    - Sprite: {fileID: 21300000, guid: 30a580eaf720b124bacfaf0b09d84712, type: 3}
+      ItemType: 1
+    - Sprite: {fileID: 21300000, guid: f3b6d27b22d7dcf42b7f634e59fcdb0e, type: 3}
+      ItemType: 2
+  _settingsStaffIconProvider:
+    StaffIcons:
+    - StaffType: 0
+      Sprite: {fileID: 21300000, guid: 4f340ba58ec434d498babcee2ac0d5b6, type: 3}
+    - StaffType: 1
+      Sprite: {fileID: 21300000, guid: 21162f80349a8f84491a99bedb7e745d, type: 3}
+    - StaffType: 2
+      Sprite: {fileID: 21300000, guid: 21162f80349a8f84491a99bedb7e745d, type: 3}
+  _settingsServiceNameProvider:
+    ServiceIcons:
+    - Name: Ticket
+      ServiceType: 0
+    - Name: Circus
+      ServiceType: 2
+    ProductServiceIcons:
+    - Name: Food
+      ItemType: 2
+    - Name: Drink
+      ItemType: 1
+  _settingsStaffProvider:
+    StaffPrefabs:
+    - {fileID: 5185019130396964543, guid: cfb4cbe69ff07db4ea323a9479bb8de2, type: 3}
+    - {fileID: 7792004092369175403, guid: 4ac0c515612976843979a5ac22a37252, type: 3}
+    - {fileID: 1200121618891381692, guid: 5b02e976fdac9574c91bbd0a7f9a5995, type: 3}

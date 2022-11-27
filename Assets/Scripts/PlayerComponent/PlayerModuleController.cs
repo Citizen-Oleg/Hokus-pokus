@@ -6,6 +6,8 @@ namespace PlayerComponent
 {
 	public class PlayerModuleController : ITickable
 	{
+		public bool IsRun { get; private set; }
+
 		private readonly JoystickController _joystickController;
 		private readonly Inventory _inventory;
 		private readonly PlayerAnimationController _playerAnimationController;
@@ -20,10 +22,10 @@ namespace PlayerComponent
 		public void Tick()
 		{
 			var inputDirection = _joystickController.InputDirection;
-			var isRun = inputDirection != Vector3.zero || _joystickController.IsDrag;
+			IsRun = inputDirection != Vector3.zero || _joystickController.IsDrag;
 
 			var hasItem = _inventory.HasItems;
-			if (!isRun)
+			if (!IsRun)
 			{
 				_playerAnimationController.SetIdleState(hasItem);
 				return;

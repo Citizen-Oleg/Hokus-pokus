@@ -2,8 +2,8 @@
 {
     public enum SpriteTypeDesired
     {
-        Ticket = 0, 
+        Ticket = 0,
         Cola = 1,
-        Burger = 2
+        Burger = 2,
     }
 }

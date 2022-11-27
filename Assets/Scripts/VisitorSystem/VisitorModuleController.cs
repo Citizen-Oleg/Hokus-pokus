@@ -19,7 +19,7 @@ namespace VisitorSystem
 
         public void Tick()
         {
-            var isRun = !_visitorMovementController.IsLookTarget();
+            var isRun = !_visitorMovementController.IsPointReached();
             _visitorAnimationController.SetIsRun(isRun);
             _visitorAnimationController.SetSitDownAnimation(_visitorMovementController.PointType == PointType.Circus);
             

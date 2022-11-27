@@ -1,7 +1,8 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using BuildingSystem.CashSystem;
+using ItemSystem;
 using TMPro;
 using UnityEngine;
 
@@ -19,6 +20,25 @@ namespace DesiredServiceSystem
         public Sprite GetSpriteBySpriteTypeDesired(SpriteTypeDesired spriteTypeDesired)
         {
             return _iconDesireds.FirstOrDefault(iconDesired => iconDesired.SpriteTypeDesired == spriteTypeDesired).Sprite;
+        }
+        
+        public Sprite GetSpriteByItemType(ItemType itemType)
+        {
+            var spriteTypeDesired = GetSpriteTypeDesiredByItemType(itemType);
+            return _iconDesireds.FirstOrDefault(iconDesired => iconDesired.SpriteTypeDesired == spriteTypeDesired).Sprite;
+        }
+        
+        private SpriteTypeDesired GetSpriteTypeDesiredByItemType(ItemType itemType)
+        {
+            switch (itemType)
+            {
+                case ItemType.Burger:
+                    return SpriteTypeDesired.Burger;
+                case ItemType.Soda:
+                    return SpriteTypeDesired.Cola;
+            }
+
+            return SpriteTypeDesired.Ticket;
         }
         
         [Serializable]

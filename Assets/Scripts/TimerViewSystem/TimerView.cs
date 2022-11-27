@@ -13,6 +13,8 @@ namespace TimerViewSystem
         private Image _image;
         [SerializeField]
         private float _timeAnimation;
+        [SerializeField]
+        private Image _itemIcon;
 
         private BuildingMiner _buildingMiner;
         private Camera _camera;
@@ -23,7 +25,7 @@ namespace TimerViewSystem
         private Sequence _sequence;
         private bool _isActive;
         
-        public void Initialize(Camera camera, BuildingMiner buildingMiner)
+        public void Initialize(Camera camera, BuildingMiner buildingMiner, Sprite sprite)
         {
             _buildingMiner = buildingMiner;
             _buildingMiner.OnRefreshTimer += StartTimer;
@@ -35,17 +37,20 @@ namespace TimerViewSystem
             _container = transform.parent as RectTransform;
             _currentTransform = transform as RectTransform;
             _attachPoint = buildingMiner.UiAttachPosition;
+            _itemIcon.sprite = sprite;
         }
 
         private void ShowTimer()
         {
             _sequence?.Kill();
+            _sequence = DOTween.Sequence();
             _sequence.Append(transform.DOScale(Vector3.one, _timeAnimation));
         }
 
         private void HideTimer()
         {
             _sequence?.Kill();
+            _sequence = DOTween.Sequence();
             _sequence.Append(transform.DOScale(Vector3.zero, _timeAnimation));
         }
         
@@ -61,8 +66,8 @@ namespace TimerViewSystem
 
             while (cooldown >= startTime && _image != null)
             {
-                startTime += Time.deltaTime;
                 _image.fillAmount += Time.deltaTime / cooldown;
+                startTime += Time.deltaTime;
 
                 await UniTask.Yield(PlayerLoopTiming.Update);
             }

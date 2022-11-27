@@ -5,6 +5,7 @@ using ResourceSystem;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using Random = UnityEngine.Random;
 
 public class ResourceView : MonoBehaviour
 {

@@ -2,6 +2,7 @@
 using BuildingSystem.CashSystem;
 using Events;
 using Tools.SimpleEventBus;
+using UniRx;
 using UnityEngine;
 using VisitorSystem.Spawner;
 using Random = UnityEngine.Random;
@@ -12,13 +13,18 @@ namespace VisitorSystem
     {
         public event Action<Visitor, ServiceZone> OnSetServiceVisitor;
         
-        private readonly IDisposable _subscription;
+        private readonly CompositeDisposable _subscription;
         private readonly VisitorSpawner _visitorSpawner;
         private readonly ServiceOrganigram _serviceOrganigram;
         
         public VisitorManager(VisitorSpawner visitorSpawner, ServiceOrganigram serviceOrganigram)
         {
-            _subscription = EventStreams.UserInterface.Subscribe<EventServedVisitor>(SetVisitorPointMovement);
+            _subscription = new CompositeDisposable
+            {
+                EventStreams.UserInterface.Subscribe<EventServedVisitor>(SetVisitorPointMovement),
+                EventStreams.UserInterface.Subscribe<EventServedVisitorNextPoint>(SetVisitorNextPointMovement)
+                
+            };
             _serviceOrganigram = serviceOrganigram;
             _visitorSpawner = visitorSpawner;
             _visitorSpawner.OnSpawnVisitor += SetSpawnVisitorPointMovement;
@@ -27,6 +33,11 @@ namespace VisitorSystem
         private void SetVisitorPointMovement(EventServedVisitor eventServedVisitor)
         {
             SetVisitorPointMovement(eventServedVisitor.Visitor, eventServedVisitor.ServiceZone,eventServedVisitor.ServiceType);
+        } 
+        
+        private void SetVisitorNextPointMovement(EventServedVisitorNextPoint eventServedVisitor)
+        {
+            SetVisitorNextPointMovement(eventServedVisitor.Visitor, eventServedVisitor.ServiceZone,eventServedVisitor.ServiceType);
         }
         
         private void SetSpawnVisitorPointMovement(Visitor visitor)
@@ -49,6 +60,18 @@ namespace VisitorSystem
             
             var point = service.CashQueue.GetPoint();
             visitor.SetDestination(point, PointType.Queue);
+            
+            OnSetServiceVisitor?.Invoke(visitor, service);
+        }
+        
+        private void SetVisitorNextPointMovement(Visitor visitor, ServiceZone serviceZone, ServiceType serviceType = ServiceType.Ticket)
+        {
+            var service = GetServiceZone(visitor, serviceZone,serviceType);
+            service.CashQueue.AddVisitor(visitor);
+            visitor.VisitCounter.AddServiceVisit(serviceType);
+            
+            var point = service.CashQueue.GetPoint();
+            visitor.SetNextPoint(point, PointType.Queue);
             
             OnSetServiceVisitor?.Invoke(visitor, service);
         }

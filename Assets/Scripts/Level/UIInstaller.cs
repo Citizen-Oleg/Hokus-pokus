@@ -1,4 +1,6 @@
 ﻿using DesiredServiceSystem;
+using JunkManagerView;
+using ServiceViewSystem;
 using TimerViewSystem;
 using UnityEngine;
 using Zenject;
@@ -8,21 +10,21 @@ namespace Level
     public class UIInstaller : MonoInstaller
     {
         [SerializeField]
-        private ViewDesiredManager.Settings _settingsViewManager;
-        [SerializeField]
-        private IconDesiredProvider.Settings _settingsDesiredProvider;
-        [SerializeField]
         private TimerViewManager.Settings _settingsTimerViewManager;
+        [SerializeField]
+        private ManagerJunkView.Settings _settingsManagerJunkView;
+        [SerializeField]
+        private ServiceViewManager.Settings _settingsServiceViewManager;
         
         public override void InstallBindings()
         {
-            Container.BindInstance(_settingsViewManager);
-            Container.BindInstance(_settingsDesiredProvider);
             Container.BindInstance(_settingsTimerViewManager);
-
-            Container.Bind<IconDesiredProvider>().AsSingle().NonLazy();
+            Container.BindInstance(_settingsManagerJunkView);
+            Container.BindInstance(_settingsServiceViewManager);
             
-            Container.BindInterfacesAndSelfTo<ViewDesiredManager>().AsSingle().NonLazy();
+            Container.Bind<ManagerJunkView>().AsSingle().NonLazy();
+            Container.Bind<ServiceViewManager>().AsSingle().NonLazy();
+            
             Container.BindInterfacesAndSelfTo<TimerViewManager>().AsSingle().NonLazy();
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Base.MoveAnimation._3D;
+using Base.MoveAnimation.UI;
 using ItemSystem;
 using PlayerComponent;
 using Portal.PlayerComponent;
@@ -17,11 +18,11 @@ namespace BuildingSystem.CashSystem
         private float _transmissionDelay;
         [SerializeField]
         private Inventarizator _inventarizator;
-
-        [Inject]
-        private ResourceManagerGame _resourceManagerGame;
+        
         [Inject]
         private AnimationManager _animationManager;
+        [Inject]
+        private RewardController _rewardController;
 
         private readonly Stack<ResourceItem> _resourceItems = new Stack<ResourceItem>();
         
@@ -47,10 +48,11 @@ namespace BuildingSystem.CashSystem
         {
             if (CanDonateResource())
             {
+                var targetTransform = _player.BodyPosition;
                 var resourceItem = _resourceItems.Pop();
-                _animationManager.ShowFlyingResource(resourceItem.transform, _player.BodyPosition, Vector3.zero, () =>
+                _animationManager.ShowFlyingResource(resourceItem.transform, targetTransform, Vector3.zero, () =>
                 {
-                    _resourceManagerGame.AddResource(resourceItem.Resource);
+                    _rewardController.AddResource(resourceItem.Resource, targetTransform.position);
                     resourceItem.Release();
                 } );
             }

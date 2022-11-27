@@ -1,4 +1,5 @@
 ﻿using System;
+using BuildingSystem.CashSystem;
 using PlayerComponent;
 using UnityEngine;
 using VisitorSystem;
@@ -8,22 +9,18 @@ namespace StaffSystem
 {
     public abstract class Staff : MonoBehaviour, IStaff
     {
-        [SerializeField]
+        public bool IsRun => _aiMovementController.IsRun;
+
+        public StaffType StaffType => _staffType;
+        
         protected Transform _stayPosition;
 
+        [SerializeField]
+        private StaffType _staffType;
+        
         [Inject]
         protected AIMovementController _aiMovementController;
-        
-        protected bool _isActivate;
 
-        private void Awake()
-        {
-            _aiMovementController.MoveToPoint(transform);
-        }
-
-        public virtual void Activate()
-        {
-            _isActivate = true;
-        }
+        public abstract void Initialize(ServiceZone serviceZone);
     }
 }

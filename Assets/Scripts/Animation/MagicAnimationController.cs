@@ -11,9 +11,13 @@ public class MagicAnimationController : MonoBehaviour
     [SerializeField]
     private ParticleSystem _particleSystem;
     [SerializeField]
-    private GameObject _experimental;
+    private GameObject _hideFirstObject;
+    [SerializeField]
+    private GameObject _hideTwoObject;
     [SerializeField]
     private CircusAnimationController _circusAnimationController;
+
+    private int _indexHide;
     
     public void StartAnimation()
     {
@@ -23,14 +27,25 @@ public class MagicAnimationController : MonoBehaviour
     [UsedImplicitly]
     public void ActivateFXExperimental()
     {
-        _animator.ResetTrigger("Activate");
         _particleSystem.Play();
-        _experimental.SetActive(false);
+
+        _indexHide++;
+        if (_indexHide == 1)
+        {
+            _hideFirstObject.SetActive(false);
+            _hideTwoObject.SetActive(true);
+        }
+        else
+        {
+            _indexHide = 0;
+            _hideTwoObject.SetActive(false);
+            _animator.ResetTrigger("Activate");
+        }
     }
 
     public void Reset()
     {
-        _experimental.SetActive(true);
+        _hideFirstObject.SetActive(true);
         _circusAnimationController.Reset();
     }
 
@@ -39,5 +54,4 @@ public class MagicAnimationController : MonoBehaviour
     {
         _circusAnimationController.Activate();
     }
-    
 }

@@ -7,24 +7,23 @@ namespace Base.MoveAnimation.UI
 {
     public class AnimationManagerUI : ITickable
     {
-        private readonly float _travelSpeed;
+        private readonly float _travelTime;
         private readonly List<AnimationUIObject> _animationObjects = new List<AnimationUIObject>();
 
         private bool _isStop;
 
         public AnimationManagerUI(Settings settings)
         {
-            _travelSpeed = settings.TravelSpeed;
+            _travelTime = settings.TravelTime;
         }
 
         public void ShowAnimationUI(RectTransform rectTransform, Vector2 startPosition, RectTransform endTransform, Action callBack)
         {
             var distance = Vector2.Distance(startPosition, endTransform.position);
-            var travelTime = distance / _travelSpeed;
             _animationObjects.Add(new AnimationUIObject
             {
                 UIObject = rectTransform,
-                TravelTime = travelTime,
+                TravelTime = _travelTime,
                 StartPosition = startPosition,
                 EndTransform = endTransform,
                 CallBack = callBack
@@ -76,7 +75,7 @@ namespace Base.MoveAnimation.UI
         [Serializable]
         public class Settings
         {
-            public float TravelSpeed;
+            public float TravelTime;
         }
 
         [Serializable]
